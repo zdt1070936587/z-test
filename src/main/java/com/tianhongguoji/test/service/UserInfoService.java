@@ -34,8 +34,8 @@ public class UserInfoService {
     private TestProducer testProducer;
     @Autowired
     private RedissonClient redissonClient;
-    @Autowired
-    private RedisTemplate redisTemplate;
+    /*@Autowired
+    private RedisTemplate redisTemplate;*/
 
     public void randomAddUserInfo() {
         UserInfo userInfo = new UserInfo();
@@ -53,7 +53,7 @@ public class UserInfoService {
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存！");
         RAtomicLong userId_redis = redissonClient.getAtomicLong("REDISSON_USER_KEY:"+testVO.getId());
         userId_redis.set(testVO.getId());
-        redisTemplate.opsForSet().add("REDISSON_USER_KEY:"+testVO.getId(),testVO.getName());
+        //redisTemplate.opsForSet().add("REDISSON_USER_KEY:"+testVO.getId(),testVO.getName());
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存结束！");
     }
 
