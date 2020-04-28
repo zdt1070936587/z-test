@@ -14,10 +14,16 @@ import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 名称： UserInfoService
@@ -34,8 +40,8 @@ public class UserInfoService {
     private TestProducer testProducer;
     @Autowired
     private RedissonClient redissonClient;
-    /*@Autowired
-    private RedisTemplate redisTemplate;*/
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     public void randomAddUserInfo() {
         UserInfo userInfo = new UserInfo();
@@ -53,7 +59,9 @@ public class UserInfoService {
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存！");
         RAtomicLong userId_redis = redissonClient.getAtomicLong("REDISSON_USER_KEY:"+testVO.getId());
         userId_redis.set(testVO.getId());
-        //redisTemplate.opsForSet().add("REDISSON_USER_KEY:"+testVO.getId(),testVO.getName());
+        ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
+        operations.set("REDIS_USER_KEY:"+testVO.getId(), testVO.getName());
+        redisTemplate.expire("REDIS_USER_KEY:"+testVO.getId(), 100, TimeUnit.SECONDS);
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存结束！");
     }
 
@@ -66,11 +74,17 @@ public class UserInfoService {
     }
 
     public void testMQ(TestVO testVO) {
-        System.out.println("UserInfoService : "+testVO);
+        System.out.println("testMQ UserInfoService : "+testVO);
+        RAtomicLong userId_redis = redissonClient.getAtomicLong("testMQ_REDISSON_USER_KEY:"+testVO.getId());
+        userId_redis.set(testVO.getId());
+        System.out.println("testMQ : "+userId_redis);
     }
 
     public void testDelayMQ(TestVO testVO) {
-        System.out.println("UserInfoService : "+testVO);
+        System.out.println("testDelayMQ UserInfoService : "+testVO);
+        RAtomicLong userId_redis = redissonClient.getAtomicLong("testDelayMQ_REDISSON_USER_KEY:"+testVO.getId());
+        userId_redis.set(testVO.getId());
+        System.out.println("testDelayMQ : "+userId_redis);
     }
 
 }
