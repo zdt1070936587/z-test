@@ -1,5 +1,5 @@
-FROM java:8
-MAINTAINER sky 296141266@qq.com
+FROM java:11
+MAINTAINER zdt 1070936587@qq.com
 VOLUME /tmp
 ADD  z-test.jar app.jar
 RUN bash -c 'touch /app.jar'
