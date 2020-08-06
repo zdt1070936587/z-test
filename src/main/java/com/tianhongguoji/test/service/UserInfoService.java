@@ -68,7 +68,7 @@ public class UserInfoService {
             @Override
             public <K, V> Object execute(RedisOperations<K, V> redisOperations) throws DataAccessException {
                 for (int i = 0; i < 5; i++) {
-                    redisTemplate.opsForValue().set("REDIS_USER_KEY_Pipelined", testVO.getId() + i);
+                    redisTemplate.opsForValue().set("REDIS_USER_KEY_Pipelined"+i, testVO.getId());
                 }
                 return null;
             }
