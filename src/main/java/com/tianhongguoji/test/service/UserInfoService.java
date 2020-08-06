@@ -15,7 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -61,6 +64,15 @@ public class UserInfoService {
         userId_redis.set(testVO.getId());
         ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
         operations.set("REDIS_USER_KEY:"+testVO.getId(), testVO.getName());
+        redisTemplate.executePipelined(new SessionCallback<Object>() {
+            @Override
+            public <K, V> Object execute(RedisOperations<K, V> redisOperations) throws DataAccessException {
+                for (int i = 0; i < 5; i++) {
+                    redisTemplate.opsForValue().set("REDIS_USER_KEY_Pipelined", testVO.getId() + i);
+                }
+                return null;
+            }
+        });
         redisTemplate.expire("REDIS_USER_KEY:"+testVO.getId(), 100, TimeUnit.SECONDS);
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存结束！");
     }
