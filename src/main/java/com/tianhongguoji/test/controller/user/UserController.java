@@ -24,8 +24,8 @@ public class UserController {
 
     @ApiOperation(value = "随机创建一个用户信息", notes="随机创建一个用户信息")
     @PostMapping("randomAddUserInfo")
-    public Long randomAddUserInfo() {
-        return userInfoService.randomAddUserInfo();
+    public String randomAddUserInfo() {
+        return userInfoService.randomAddUserInfo().toString();
     }
 
     @ApiOperation(value = "查询单个用户信息", notes="使用用户id查询用户信息")
