@@ -35,4 +35,10 @@ public class UserController {
         return userInfoService.findUserInfoById(id);
     }
 
+    @ApiOperation(value = "获取最新的一个用户信息", notes="获取最新的一个用户信息")
+    @GetMapping("getNewUserInfo")
+    public UserInfoVO getNewUserInfo() {
+        return userInfoService.getNewUserInfo();
+    }
+
 }

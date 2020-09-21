@@ -86,6 +86,14 @@ public class UserInfoService {
         return new UserInfoVO(userInfo);
     }
 
+    public UserInfoVO getNewUserInfo() {
+        UserInfo userInfo = userInfoRepository.findByMaxId();
+        if (userInfo == null) {
+            throw new CustomException(401,"用户信息不存在！");
+        }
+        return new UserInfoVO(userInfo);
+    }
+
     public void testMQ(TestVO testVO) {
         System.out.println("testMQ UserInfoService : "+testVO);
         RAtomicLong userId_redis = redissonClient.getAtomicLong("testMQ_REDISSON_USER_KEY:"+testVO.getId());
