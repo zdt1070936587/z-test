@@ -52,8 +52,13 @@ public class UserInfoService {
         userInfo.setNickName(nickName);
         userInfo.setImage(GetDefaultImage.getDefaultHeadPortraitImageAddress(nickName));
         userInfo.setPersonalProfile(TestConstant.DEFAULT_PERSONAL_PROFILE);
-        userInfo.setSex(new Random().nextInt(2));
+        userInfo.setSex(new Random().nextInt(3));
         userInfo = userInfoRepository.save(userInfo);
+        test(userInfo);
+        return userInfo.getId();
+    }
+
+    private void test(UserInfo userInfo){
         TestVO testVO = new TestVO(userInfo);
         logger.info("UserInfoService randomAddUserInfo 添加完用户发送消息！");
         testProducer.testOutPut(testVO);
@@ -75,7 +80,6 @@ public class UserInfoService {
         });
         redisTemplate.expire("REDIS_USER_KEY:"+testVO.getId(), 100, TimeUnit.SECONDS);
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存结束！");
-        return userInfo.getId();
     }
 
     public UserInfoVO findUserInfoById(Long id) {
