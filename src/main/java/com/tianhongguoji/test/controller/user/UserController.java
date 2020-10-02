@@ -23,18 +23,22 @@ public class UserController {
     private UserInfoService userInfoService;
 
     @ApiOperation(value = "随机创建一个用户信息", notes="随机创建一个用户信息")
-    @ResponseBody
     @PostMapping("randomAddUserInfo")
-    public void randomAddUserInfo() {
-        userInfoService.randomAddUserInfo();
+    public String randomAddUserInfo() {
+        return userInfoService.randomAddUserInfo().toString();
     }
 
     @ApiOperation(value = "查询单个用户信息", notes="使用用户id查询用户信息")
     @ApiImplicitParam(name = "id", value = "id", paramType = "query", required = true, dataType = "long")
-    @ResponseBody
     @GetMapping
     public UserInfoVO findUserInfoById(@RequestParam(name = "id") Long id) {
         return userInfoService.findUserInfoById(id);
+    }
+
+    @ApiOperation(value = "获取最新的一个用户信息", notes="获取最新的一个用户信息")
+    @GetMapping("getNewUserInfo")
+    public UserInfoVO getNewUserInfo() {
+        return userInfoService.getNewUserInfo();
     }
 
 }

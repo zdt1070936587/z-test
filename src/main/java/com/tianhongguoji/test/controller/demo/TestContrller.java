@@ -12,7 +12,6 @@ public class TestContrller {
 
     @ApiOperation(value = "hello", notes="get Hello World !")
     @ApiImplicitParam(name = "name", value = "名称", paramType = "query", required = true, dataType = "String")
-    @ResponseBody
     @GetMapping("hello")
     public String getHomePageVideo(@RequestParam(name = "name") String name) {
         return "Hi ! " + name + " ：Hello World !";

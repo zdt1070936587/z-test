@@ -15,7 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -43,14 +46,19 @@ public class UserInfoService {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    public void randomAddUserInfo() {
+    public Long randomAddUserInfo() {
         UserInfo userInfo = new UserInfo();
         String nickName = GetRandomStr.generateString(10);
         userInfo.setNickName(nickName);
         userInfo.setImage(GetDefaultImage.getDefaultHeadPortraitImageAddress(nickName));
         userInfo.setPersonalProfile(TestConstant.DEFAULT_PERSONAL_PROFILE);
-        userInfo.setSex(new Random().nextInt(2));
-        userInfoRepository.save(userInfo);
+        userInfo.setSex(new Random().nextInt(3));
+        userInfo = userInfoRepository.save(userInfo);
+        test(userInfo);
+        return userInfo.getId();
+    }
+
+    private void test(UserInfo userInfo){
         TestVO testVO = new TestVO(userInfo);
         logger.info("UserInfoService randomAddUserInfo 添加完用户发送消息！");
         testProducer.testOutPut(testVO);
@@ -61,12 +69,29 @@ public class UserInfoService {
         userId_redis.set(testVO.getId());
         ValueOperations<Serializable, Object> operations = redisTemplate.opsForValue();
         operations.set("REDIS_USER_KEY:"+testVO.getId(), testVO.getName());
+        redisTemplate.executePipelined(new SessionCallback<Object>() {
+            @Override
+            public <K, V> Object execute(RedisOperations<K, V> redisOperations) throws DataAccessException {
+                for (int i = 0; i < 5; i++) {
+                    redisTemplate.opsForValue().set("REDIS_USER_KEY_Pipelined"+i, testVO.getId());
+                }
+                return null;
+            }
+        });
         redisTemplate.expire("REDIS_USER_KEY:"+testVO.getId(), 100, TimeUnit.SECONDS);
         logger.info("UserInfoService randomAddUserInfo 添加完用户后放缓存结束！");
     }
 
     public UserInfoVO findUserInfoById(Long id) {
         UserInfo userInfo = userInfoRepository.findById(id).orElse(null);
+        if (userInfo == null) {
+            throw new CustomException(401,"用户信息不存在！");
+        }
+        return new UserInfoVO(userInfo);
+    }
+
+    public UserInfoVO getNewUserInfo() {
+        UserInfo userInfo = userInfoRepository.findByMaxId();
         if (userInfo == null) {
             throw new CustomException(401,"用户信息不存在！");
         }

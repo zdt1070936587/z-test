@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tianhongguoji.test.domain.UserInfo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Column;
 import java.util.Date;
@@ -23,7 +24,7 @@ public class UserInfoVO {
     @ApiModelProperty("昵称")
     private String nickName;
 
-    @ApiModelProperty("性别 0 未知 1 男 2女")
+    @ApiModelProperty("性别 0 未知 1 男 2 女")
     private Integer sex;
 
     @ApiModelProperty("头像")
@@ -33,10 +34,28 @@ public class UserInfoVO {
     private String personalProfile;
 
     @Column(name = "创建时间")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @Column(name = "修改时间")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
+
+    public String getSex() {
+        String sexS = "未知";
+        switch (sex) {
+            case 1 :
+                sexS = "男";
+                break;
+            case 2 :
+                sexS = "女";
+                break;
+        }
+        return sexS;
+    }
+
 
     public UserInfoVO(UserInfo userInfo) {
         id = userInfo.getId();

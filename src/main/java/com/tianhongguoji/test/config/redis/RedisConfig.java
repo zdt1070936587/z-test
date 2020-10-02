@@ -11,7 +11,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
     @Autowired
     private RedisTemplate redisTemplate;
-
     @Bean
     public RedisTemplate redisTemplateInit() {
         //设置序列化Key的实例化对象
